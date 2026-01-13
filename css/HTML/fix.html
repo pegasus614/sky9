@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Screen 2 Seat Update</title>
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px;
+  }
+
+  .screen2-container {
+    background: #fff;
+    border-radius: 12px;
+    padding: 30px 40px;
+    box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    width: 350px;
+  }
+
+  .screen2-container h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #1c5cb4;
+  }
+
+  .ticket-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+    align-items: center;
+  }
+
+  .ticket-info h5 {
+    margin: 0;
+    font-size: 14px;
+    color: #555;
+  }
+
+  .ticket-info h4 {
+    margin: 0;
+    font-size: 18px;
+    color: #1c5cb4;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  input[type="text"] {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+  }
+
+  button {
+    padding: 10px;
+    border-radius: 6px;
+    border: none;
+    background: #1c5cb4;
+    color: #fff;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  button:hover {
+    background: #154a8a;
+  }
+</style>
+</head>
+<body>
+
+<div class="screen2-container" id="screen2">
+  <h2>Screen 2 Seat Info</h2>
+
+  <div class="ticket-info ticket-sec">
+    <h5>SEC</h5>
+    <h4 id="sec-display">115</h4>
+  </div>
+
+  <div class="ticket-info ticket-row">
+    <h5>ROW</h5>
+    <h4 id="row-display">17</h4>
+  </div>
+
+  <div class="ticket-info ticket-seat">
+    <h5>SEAT</h5>
+    <h4 id="seat-display">10</h4>
+  </div>
+
+  <form id="seat-form">
+    <input type="text" id="sec-input" placeholder="Enter SEC">
+    <input type="text" id="row-input" placeholder="Enter ROW">
+    <input type="text" id="seat-input" placeholder="Enter SEAT">
+    <button type="submit">Update Screen 2</button>
+  </form>
+</div>
+
+<script>
+  // ---------- SCREEN 2 DOTS SCROLL ANIMATION ----------
+  const screen2 = document.getElementById('screen2');
+  const dots = screen2?.querySelector('.dots');
+
+  if (dots) {
+    dots.style.animationPlayState = "paused";
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          dots.style.animationPlayState = "running";
+          dots.classList.add("active");
+        } else {
+          dots.style.animationPlayState = "paused";
+          dots.classList.remove("active");
+        }
+      });
+    }, { threshold: 0.2 });
+    observer.observe(dots);
+  }
+
+  // ---------- SCREEN 2 FORM FUNCTIONALITY ----------
+  const secDisplay = document.getElementById('sec-display');
+  const rowDisplay = document.getElementById('row-display');
+  const seatDisplay = document.getElementById('seat-display');
+
+  const seatForm = document.getElementById('seat-form');
+  const secInput = document.getElementById('sec-input');
+  const rowInput = document.getElementById('row-input');
+  const seatInput = document.getElementById('seat-input');
+
+  seatForm.addEventListener('submit', (e) => {
+    e.preventDefault();
+
+    if (secInput.value) secDisplay.textContent = secInput.value;
+    if (rowInput.value) rowDisplay.textContent = rowInput.value;
+    if (seatInput.value) seatDisplay.textContent = seatInput.value;
+
+    secInput.value = '';
+    rowInput.value = '';
+    seatInput.value = '';
+  });
+
+  // ---------- SCREEN 3, 4, 5 FUNCTIONALITY ----------
+  const screen3 = document.getElementById('screen3');
+  const screen4 = document.getElementById('screen4');
+  const screen5 = document.getElementById('screen5');
+
+  const selectedCount = screen3?.querySelector('#selected-count');
+
+  const seats = screen3 ? screen3.querySelectorAll('.seat-card') : [];
+
+  function updateScreen4Count() {
+    if(!screen4) return;
+    const selectedSeats = screen3.querySelectorAll('.seat-card.selected').length;
+    const ticketDetails = screen4.querySelector('.ticket-details');
+    const submitBtn = screen4.querySelector('.submit-btn');
+    if(ticketDetails) ticketDetails.innerHTML = `<br />${selectedSeats} Tickets Selected<br />`;
+    if(submitBtn) submitBtn.textContent = `TRANSFER ${selectedSeats} TICKETS`;
+  }
+
+  seats.forEach(seat => {
+    seat.addEventListener('click', () => {
+      seat.classList.toggle('selected');
+      if(selectedCount) selectedCount.textContent = `${screen3.querySelectorAll('.seat-card.selected').length} Selected`;
+      updateScreen4Count();
+    });
+  });
+
+  document.querySelectorAll('.transfer-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      screen3?.classList.add('show');
+    });
+  });
+
+  const transferLink = screen3?.querySelector('.transfer-link');
+  transferLink?.addEventListener('click', (e) => {
+    e.preventDefault();
+    screen3?.classList.remove('show');
+    screen4?.classList.add('show');
+    updateScreen4Count();
+  });
+
+  screen4?.querySelector('.back-btn')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    screen4.classList.remove('show');
+    screen3.classList.add('show');
+  });
+
+  document.querySelectorAll('.view-ticket').forEach(btn => {
+    btn.addEventListener('click', () => {
+      screen5?.classList.add('show');
+    });
+  });
+
+  screen3?.querySelector('.fa-times')?.addEventListener('click', () => {
+    screen3.classList.remove('show');
+  });
+
+  screen5?.querySelector('.fa-times')?.addEventListener('click', () => {
+    screen5.classList.remove('show');
+  });
+
+  
+
+</script>
+
+</body>
+</html>
